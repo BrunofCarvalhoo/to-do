@@ -8,8 +8,11 @@
 {% block sections %}
 <section>
     <h1>Compromisso - {{ selected_date }}</h1>
-    <form action="{% url 'adicionar_compromisso' %}?date={{ selected_date }}" method="post">
+    <form action="{% url 'adicionar_compromisso' %}" method="post">
         {% csrf_token %}
+        <!-- Campo oculto para enviar a data selecionada -->
+        <input type="hidden" name="date" value="{{ selected_date }}">
+        
         <div class="time-section">
             <div>
                 <label for="hora_inicio">Hora - Início</label>
