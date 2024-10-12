@@ -1,5 +1,9 @@
 /* Estilo para o conteúdo principal da app (sobrescreve o global) */
 /* Estiliza o formulário e o campo de data */
+.container {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
 h1 {
     color: #333;
 }
@@ -88,4 +92,28 @@ input[type="submit"]:hover {
 .flatpickr-innerContainer {
     align-items: center;
     justify-content: center;
+}
+/* Estilo da bolinha verde no calendário */
+.event-marker {
+    width: 8px;
+    height: 8px;
+    background-color: green; /* Cor da bolinha indicando compromisso */
+    border-radius: 50%;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+
+.flatpickr-day {
+    position: relative; /* Necessário para a posição da bolinha */
+}
+
+.commitment-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 482px;
+    width: 390px;
+    margin-top: 28px;
+    background-color: lightgray;
 }

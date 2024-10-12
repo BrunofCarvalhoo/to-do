@@ -2,9 +2,20 @@ from django.shortcuts import render, redirect
 from datetime import datetime
 from django.utils import timezone
 from .models import Commitment
+import json
+from django.http import JsonResponse
 
 def render_calendar(request):
-    return render(request, "segunda_app/calendar_page.html")
+    # Obtenha todas as datas dos compromissos
+    compromissos = Commitment.objects.values_list('time_start', flat=True)
+    
+    # Converta para uma lista de strings no formato "YYYY-MM-DD"
+    datas_com_compromissos = [comp.date().isoformat() for comp in compromissos]
+    
+    context = {
+        'datas_com_compromissos': json.dumps(datas_com_compromissos)  # Passa como JSON
+    }
+    return render(request, "segunda_app/calendar_page.html", context)
 
 def add_commitment(request):
     # Captura a data selecionada do calendário
@@ -43,3 +54,34 @@ def add_commitment(request):
 
     # Passa a data selecionada para o template de adição de compromisso
     return render(request, "segunda_app/add_commitment_page.html", {'selected_date': date_str})
+
+def get_commitments_by_date(request):
+    # Captura a data da requisição GET
+    date_str = request.GET.get('date')
+
+    # Verifica se a data foi fornecida
+    if not date_str:
+        return JsonResponse({'error': 'Data não fornecida'}, status=400)
+    
+    try:
+        # Tenta converter a data no formato esperado 'd/m/Y' (ex: 23/10/2024)
+        date_obj = datetime.strptime(date_str, '%d/%m/%Y')
+    except ValueError:
+        return JsonResponse({'error': 'Formato de data inválido'}, status=400)
+    
+    # Filtra os compromissos para a data informada
+    compromissos = Commitment.objects.filter(time_start__date=date_obj)
+
+    # Prepara os dados para retorno
+    compromissos_data = [
+        {
+            'processo': comp.processes,
+            'local': comp.location,
+            'observacoes': comp.description,
+            'hora_inicio': comp.time_start.strftime('%H:%M'),
+            'hora_fim': comp.time_end.strftime('%H:%M')
+        } for comp in compromissos
+    ]
+    
+    # Retorna os dados dos compromissos em formato JSON
+    return JsonResponse({'compromissos': compromissos_data})
