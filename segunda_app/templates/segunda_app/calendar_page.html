@@ -6,6 +6,35 @@
 {% block extra_css %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="{% static 'segunda_app/css/calendar_page_styles.css' %}">
+    <style>
+   .commitment-info {
+    margin-top: 20px;
+    max-height: 400px;  /* Aumentamos a altura máxima */
+    overflow-y: auto;   /* Ativa a rolagem vertical */
+    overflow-x: hidden; /* Garante que não haverá rolagem lateral */
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;  /* Garante que os compromissos fiquem um abaixo do outro */
+    }
+
+    .commitment-item {
+    display: block;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    word-wrap: break-word; /* Garante quebra de linha em textos longos */
+    background-color: #fff;
+    width: 100%;
+    box-sizing: border-box;  /* Garante que padding e border sejam incluídos na largura total */
+    }
+
+    .commitment-item:last-child {
+    margin-bottom: 0;  /* Remove o margin-bottom do último item */
+    }
+
+    </style>
 {% endblock %}
 
 {% block sections %}

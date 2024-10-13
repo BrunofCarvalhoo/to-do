@@ -64,7 +64,8 @@ def get_commitments_by_date(request):
     except ValueError:
         return JsonResponse({'error': 'Formato de data inválido'}, status=400)
     
-    compromissos = Commitment.objects.filter(time_start__date=date_obj)
+    # Ordena os compromissos pelo horário de início
+    compromissos = Commitment.objects.filter(time_start__date=date_obj).order_by('time_start')
 
     compromissos_data = [
         {
