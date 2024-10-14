@@ -4,6 +4,7 @@ from django.utils import timezone
 from .models import Commitment
 import json
 from django.http import JsonResponse
+import pytz
 
 def render_calendar(request):
     # Obtenha todas as datas dos compromissos
@@ -19,20 +20,16 @@ def render_calendar(request):
 
 def add_commitment(request):
     if request.method == 'POST':
-        date_str = request.POST.get('date')  # Obtém a data do POST
+        date_str = request.POST.get('date')
         try:
-            # Converte a data de 'd/m/Y' para um objeto datetime
             date_obj = datetime.strptime(date_str, '%d/%m/%Y')
-
-            # Combina a data com a hora de início e fim
             start_time = datetime.combine(date_obj, datetime.strptime(request.POST['hora_inicio'], '%H:%M').time())
             end_time = datetime.combine(date_obj, datetime.strptime(request.POST['hora_fim'], '%H:%M').time())
+            
+            tz = pytz.timezone('America/Sao_Paulo')
+            start_time = timezone.make_aware(start_time, timezone=tz)
+            end_time = timezone.make_aware(end_time, timezone=tz)
 
-            # Torna as datas timezone-aware
-            start_time = timezone.make_aware(start_time)
-            end_time = timezone.make_aware(end_time)
-
-            # Cria o compromisso no banco de dados
             Commitment.objects.create(
                 time_start=start_time,
                 time_end=end_time,
@@ -40,15 +37,13 @@ def add_commitment(request):
                 location=request.POST['local'],
                 description=request.POST['observacoes']
             )
-            return redirect('agenda')  # Redireciona para a agenda após salvar o compromisso
+            return redirect('agenda')
         except ValueError:
-            # Caso a data ou hora esteja em um formato inválido, retorna uma mensagem de erro
             return render(request, "segunda_app/add_commitment_page.html", {
                 'selected_date': date_str,
                 'error': 'Formato de data ou hora inválido. Tente novamente.'
             })
     else:
-        # Captura a data selecionada do calendário via GET
         date_str = request.GET.get('date')
         return render(request, "segunda_app/add_commitment_page.html", {'selected_date': date_str})
 
@@ -59,24 +54,20 @@ def get_commitments_by_date(request):
         return JsonResponse({'error': 'Data não fornecida'}, status=400)
     
     try:
-        # Formata a data corretamente de acordo com o que está vindo do JavaScript ('YYYY-MM-DD')
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
     except ValueError:
         return JsonResponse({'error': 'Formato de data inválido'}, status=400)
     
-    # Carrega todos os compromissos para a data específica e os ordena pelo horário de início
     compromissos = Commitment.objects.filter(time_start__date=date_obj).order_by('time_start')
 
-    # Prepara os dados dos compromissos em uma lista
     compromissos_data = [
         {
             'processo': comp.processes,
             'local': comp.location,
             'observacoes': comp.description,
-            'hora_inicio': comp.time_start.strftime('%H:%M'),
-            'hora_fim': comp.time_end.strftime('%H:%M')
+            'hora_inicio': timezone.localtime(comp.time_start).strftime('%H:%M'),
+            'hora_fim': timezone.localtime(comp.time_end).strftime('%H:%M')
         } for comp in compromissos
     ]
     
-    # Retorna os dados como JSON
     return JsonResponse({'compromissos': compromissos_data})
