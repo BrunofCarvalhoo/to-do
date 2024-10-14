@@ -59,14 +59,15 @@ def get_commitments_by_date(request):
         return JsonResponse({'error': 'Data não fornecida'}, status=400)
     
     try:
-        # Ajuste o formato para '%Y-%m-%d'
+        # Formata a data corretamente de acordo com o que está vindo do JavaScript ('YYYY-MM-DD')
         date_obj = datetime.strptime(date_str, '%Y-%m-%d')
     except ValueError:
         return JsonResponse({'error': 'Formato de data inválido'}, status=400)
     
-    # Ordena os compromissos pelo horário de início
+    # Carrega todos os compromissos para a data específica e os ordena pelo horário de início
     compromissos = Commitment.objects.filter(time_start__date=date_obj).order_by('time_start')
 
+    # Prepara os dados dos compromissos em uma lista
     compromissos_data = [
         {
             'processo': comp.processes,
@@ -77,4 +78,5 @@ def get_commitments_by_date(request):
         } for comp in compromissos
     ]
     
+    # Retorna os dados como JSON
     return JsonResponse({'compromissos': compromissos_data})

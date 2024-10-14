@@ -1,8 +1,39 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Verifica se a variável 'datasComCompromissos' foi carregada corretamente
-    if (typeof datasComCompromissos === 'undefined') {
-        console.error("A variável 'datasComCompromissos' não foi definida.");
-        return;
+    const commitmentsDiv = document.querySelector("#commitments");
+
+    // Função para carregar compromissos de um dia específico
+    function loadCommitments(dateStr) {
+        fetch(`/agenda/get_commitments/?date=${dateStr}`)
+            .then(response => response.json())
+            .then(data => {
+                commitmentsDiv.innerHTML = '';  // Limpa a div de compromissos
+
+                // Verifica se existem compromissos para o dia
+                if (data.compromissos && data.compromissos.length > 0) {
+                    data.compromissos.forEach(comp => {
+                        // Cria um item para cada compromisso
+                        const commitmentItem = document.createElement("div");
+                        commitmentItem.className = 'commitment-item';  // Classe para estilizar
+                        commitmentItem.innerHTML = `
+                            <strong>${comp.processo}</strong><br>
+                            <span>Local: ${comp.local}</span><br>
+                            <span>Início: ${comp.hora_inicio}</span><br>
+                            <span>Fim: ${comp.hora_fim}</span><br>
+                            <p>${comp.observacoes}</p>
+                        `;
+                        commitmentsDiv.appendChild(commitmentItem);
+                    });
+
+                    // Ajuste para rolagem infinita no container
+                    commitmentsDiv.style.overflowY = 'auto';  // Garante a rolagem vertical
+                } else {
+                    commitmentsDiv.innerHTML = '<p>Nenhum evento para esse dia.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar compromissos:', error);
+                commitmentsDiv.innerHTML = '<p>Ocorreu um erro ao carregar os compromissos.</p>';
+            });
     }
 
     // Configura o calendário flatpickr
@@ -13,10 +44,8 @@ document.addEventListener("DOMContentLoaded", function() {
         defaultDate: "today",      // Data padrão (hoje)
         firstDayOfWeek: 1,         // Começa a semana na segunda-feira
         onDayCreate: function(dObj, dStr, fp, dayElem) {
-            // Formata a data do elemento de dia (ano-mês-dia)
             var dateStr = dayElem.dateObj.toISOString().split('T')[0];  // 'YYYY-MM-DD'
 
-            // Verifica se existe evento para este dia
             if (datasComCompromissos.includes(dateStr)) {
                 var eventMarker = document.createElement('div');
                 eventMarker.className = 'event-marker';  // Classe do marcador de evento
@@ -25,43 +54,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Adiciona o listener de clique no próprio dia
             dayElem.addEventListener("click", function() {
-                // Chama a API para carregar compromissos do banco de dados
-                fetch(`/agenda/get_commitments/?date=${dateStr}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const commitmentsDiv = document.querySelector("#commitments");
-                        commitmentsDiv.innerHTML = '';  // Limpa a div de compromissos
-
-                        // Verifica se existem compromissos para o dia
-                        if (data.compromissos && data.compromissos.length > 0) {
-                            data.compromissos.forEach(comp => {
-                                // Cria um item para cada compromisso
-                                const commitmentItem = document.createElement("div");
-                                commitmentItem.className = 'commitment-item';  // Adiciona uma classe para estilizar
-                                commitmentItem.innerHTML = `
-                                    <strong>${comp.processo}</strong><br>
-                                    <span>Local: ${comp.local}</span><br>
-                                    <span>Início: ${comp.hora_inicio}</span><br>
-                                    <span>Fim: ${comp.hora_fim}</span><br>
-                                    <p>${comp.observacoes}</p>
-                                `;
-                                commitmentsDiv.appendChild(commitmentItem);
-                            });
-                        } else {
-                            commitmentsDiv.innerHTML = '<p>Nenhum evento para esse dia.</p>';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar compromissos:', error);
-                        // Caso haja erro na requisição, exibe a mensagem de erro
-                        const commitmentsDiv = document.querySelector("#commitments");
-                        commitmentsDiv.innerHTML = '<p>Ocorreu um erro ao carregar os compromissos.</p>';
-                    });
+                loadCommitments(dateStr);  // Carrega compromissos quando o dia é clicado
             });
-        },
-        onChange: function(selectedDates, dateStr, instance) {
-            // Lógica adicional para quando o usuário mudar a data no calendário
-            // No momento, não precisa de ações adicionais
         }
     });
 });
