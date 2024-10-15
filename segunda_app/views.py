@@ -3,7 +3,7 @@ from datetime import datetime
 from django.utils import timezone
 from .models import Commitment
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 import pytz
 
 def render_calendar(request):
@@ -66,8 +66,21 @@ def get_commitments_by_date(request):
             'local': comp.location,
             'observacoes': comp.description,
             'hora_inicio': timezone.localtime(comp.time_start).strftime('%H:%M'),
-            'hora_fim': timezone.localtime(comp.time_end).strftime('%H:%M')
+            'hora_fim': timezone.localtime(comp.time_end).strftime('%H:%M'),
+            'id': comp.id  # Adiciona o ID do compromisso
         } for comp in compromissos
     ]
     
     return JsonResponse({'compromissos': compromissos_data})
+
+def delete_commitment(request, comp_id):
+    if request.method == 'DELETE':
+        try:
+            # Obtém o compromisso a ser excluído
+            commitment = Commitment.objects.get(id=comp_id)
+            commitment.delete()  # Deleta o compromisso
+            return JsonResponse({'success': True}, status=204)  # Retorna sucesso
+        except Commitment.DoesNotExist:
+            return JsonResponse({'error': 'Compromisso não encontrado'}, status=404)
+    else:
+        return HttpResponseBadRequest('Método não permitido')

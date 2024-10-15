@@ -7,25 +7,8 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(response => response.json())
             .then(data => {
                 commitmentsDiv.innerHTML = '';  // Limpa a div de compromissos
-
-                // Verifica se existem compromissos para o dia
                 if (data.compromissos && data.compromissos.length > 0) {
-                    data.compromissos.forEach(comp => {
-                        // Cria um item para cada compromisso
-                        const commitmentItem = document.createElement("div");
-                        commitmentItem.className = 'commitment-item';  // Classe para estilizar
-                        commitmentItem.innerHTML = `
-                            <strong>${comp.processo}</strong><br>
-                            <span>Local: ${comp.local}</span><br>
-                            <span>Início: ${comp.hora_inicio}</span><br>
-                            <span>Fim: ${comp.hora_fim}</span><br>
-                            <p>${comp.observacoes}</p>
-                        `;
-                        commitmentsDiv.appendChild(commitmentItem);
-                    });
-
-                    // Ajuste para rolagem infinita no container
-                    commitmentsDiv.style.overflowY = 'auto';  // Garante a rolagem vertical
+                    renderCommitments(data.compromissos);
                 } else {
                     commitmentsDiv.innerHTML = '<p>Nenhum evento para esse dia.</p>';
                 }
@@ -36,6 +19,67 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
+    // Função para renderizar compromissos na interface
+    function renderCommitments(compromissos) {
+        compromissos.forEach(comp => {
+            const commitmentItem = document.createElement("div");
+            commitmentItem.className = 'commitment-item';  // Classe para estilizar
+            commitmentItem.innerHTML = `
+                <strong>${comp.processo}</strong><br>
+                <span>Local: ${comp.local}</span><br>
+                <span>Início: ${comp.hora_inicio}</span><br>
+                <span>Fim: ${comp.hora_fim}</span><br>
+                <p>${comp.observacoes}</p>
+                <button class="delete-button" data-id="${comp.id}">Excluir</button>
+            `;
+            commitmentsDiv.appendChild(commitmentItem);
+        });
+
+        // Ajuste para rolagem infinita no container
+        commitmentsDiv.style.overflowY = 'auto';  // Garante a rolagem vertical
+
+        // Adiciona evento de clique para cada botão de excluir
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const compId = this.getAttribute('data-id'); // Obtém o ID do compromisso
+                deleteCommitment(compId); // Chama a função para deletar o compromisso
+            });
+        });
+    }
+
+    // Função para excluir um compromisso
+    function deleteCommitment(compId) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch(`/agenda/delete_commitment/${compId}/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken  // Adiciona o token CSRF aqui
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Remove o compromisso da interface
+                const commitmentItem = document.querySelector(`.delete-button[data-id="${compId}"]`).parentElement;
+                commitmentItem.remove();
+
+                // Verifica se ainda há compromissos no dia
+                if (commitmentsDiv.children.length === 0) {
+                    commitmentsDiv.innerHTML = '<p>Nenhum evento para esse dia.</p>';
+                }
+            } else {
+                return response.json().then(err => {
+                    console.error('Erro ao excluir o compromisso:', err.error);
+                    alert(`Erro: ${err.error}`);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao fazer a requisição para excluir o compromisso:', error);
+        });
+    }
+
     // Configura o calendário flatpickr
     flatpickr("#datepicker", {
         locale: "pt",              // Idioma para português
@@ -44,10 +88,10 @@ document.addEventListener("DOMContentLoaded", function() {
         defaultDate: "today",      // Data padrão (hoje)
         firstDayOfWeek: 1,         // Começa a semana na segunda-feira
         onDayCreate: function(dObj, dStr, fp, dayElem) {
-            var dateStr = dayElem.dateObj.toISOString().split('T')[0];  // 'YYYY-MM-DD'
+            const dateStr = dayElem.dateObj.toISOString().split('T')[0];  // 'YYYY-MM-DD'
 
             if (datasComCompromissos.includes(dateStr)) {
-                var eventMarker = document.createElement('div');
+                const eventMarker = document.createElement('div');
                 eventMarker.className = 'event-marker';  // Classe do marcador de evento
                 dayElem.appendChild(eventMarker);
             }

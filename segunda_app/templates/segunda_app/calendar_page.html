@@ -7,31 +7,30 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="{% static 'segunda_app/css/calendar_page_styles.css' %}">
     <style>
-   .commitment-info {
-    max-height: 400px;    /* Altura máxima ajustável */
-    overflow-y: auto;     /* Habilitar rolagem vertical */
-    border: 1px solid #ccc;
-    padding: 10px;
-    background-color: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-    }
+        .commitment-info {
+            max-height: 400px;    /* Altura máxima ajustável */
+            overflow-y: auto;     /* Habilitar rolagem vertical */
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .commitment-item {
-    display: block;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #ddd;
-    word-wrap: break-word; /* Quebra de linha para textos longos */
-    background-color: #fff;
-    width: 100%;
-    box-sizing: border-box;
-    }
+        .commitment-item {
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            word-wrap: break-word; /* Quebra de linha para textos longos */
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-    .commitment-item:last-child {
-    margin-bottom: 0;
-    }
-
+        .commitment-item:last-child {
+            margin-bottom: 0;
+        }
     </style>
 {% endblock %}
 
@@ -53,6 +52,7 @@
 {% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <script>
         // Passa a lista de datas com compromissos do Django para o JS.
         var datasComCompromissos = JSON.parse('{{ datas_com_compromissos|escapejs }}');
