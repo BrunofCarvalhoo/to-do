@@ -134,3 +134,14 @@ input[type="submit"]:hover {
 .delete-button:hover {
     background-color: #000000; /* Cor um pouco mais escura no hover */
 }
+.edit-button {
+    display: block;
+    margin: auto;
+    padding: 5px 10px; /* Ajuste o padding para um tamanho menor */
+    background-color: #333; /* Cor cinza para o botão */
+    color: white; /* Cor do texto branco */
+    border: none; /* Remove a borda padrão */
+    border-radius: 4px; /* Arredondamento das bordas */
+    cursor: pointer; /* Cursor de pointer ao passar o mouse */
+    font-size: 14px; /* Tamanho da fonte menor */
+}

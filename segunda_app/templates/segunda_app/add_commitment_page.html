@@ -8,7 +8,7 @@
 {% block sections %}
 <section>
     <h1>Compromisso - {{ selected_date }}</h1>
-    <form action="{% url 'adicionar_compromisso' %}" method="post">
+    <form action="{{ form_action }}" method="post">
         {% csrf_token %}
         <!-- Campo oculto para enviar a data selecionada -->
         <input type="hidden" name="date" value="{{ selected_date }}">
@@ -16,22 +16,22 @@
         <div class="time-section">
             <div>
                 <label for="hora_inicio">Hora - Início</label>
-                <input type="time" id="hora_inicio" name="hora_inicio" required>
+                <input type="time" id="hora_inicio" name="hora_inicio" value="{{ hora_inicio }}" required>
             </div>
             <div>
                 <label for="hora_fim">Hora - Fim</label>
-                <input type="time" id="hora_fim" name="hora_fim" required>
+                <input type="time" id="hora_fim" name="hora_fim" value="{{ hora_fim }}" required>
             </div>
         </div>
 
         <label for="processo">Processo vinculado ao compromisso</label>
-        <input type="text" id="processo" name="processo" required>
+        <input type="text" id="processo" name="processo" value="{{ processo }}" required>
 
         <label for="local">Local</label>
-        <input type="text" id="local" name="local" required>
+        <input type="text" id="local" name="local" value="{{ local }}" required>
 
         <label for="observacoes">Observações</label>
-        <textarea id="observacoes" name="observacoes" rows="5"></textarea>
+        <textarea id="observacoes" name="observacoes" rows="5">{{ observacoes }}</textarea>
 
         <button type="submit">Salvar</button>
     </form>
