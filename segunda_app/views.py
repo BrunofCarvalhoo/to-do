@@ -11,8 +11,8 @@ def render_calendar(request):
     # Obtenha todas as datas dos compromissos
     compromissos = Commitment.objects.values_list('time_start', flat=True)
     
-    # Converta para uma lista de strings no formato "YYYY-MM-DD"
-    datas_com_compromissos = [comp.date().isoformat() for comp in compromissos]
+    # Converta para uma lista de strings no formato "YYYY-MM-DD", considerando o fuso horário local
+    datas_com_compromissos = [timezone.localtime(comp).date().isoformat() for comp in compromissos]
     
     context = {
         'datas_com_compromissos': json.dumps(datas_com_compromissos)  # Passa como JSON
@@ -44,7 +44,7 @@ def add_commitment(request):
                 'selected_date': date_str,
                 'error': 'Formato de data ou hora inválido. Tente novamente.',
                 'form_action': reverse('adicionar_compromisso'),
-                # Preenche os campos com os dados submetidos para não perder as informações
+                # Preenche os campos com os dados submetidos
                 'hora_inicio': request.POST.get('hora_inicio'),
                 'hora_fim': request.POST.get('hora_fim'),
                 'processo': request.POST.get('processo'),
@@ -74,8 +74,8 @@ def edit_commitment(request, comp_id):
             end_time = datetime.combine(date_obj, datetime.strptime(request.POST['hora_fim'], '%H:%M').time())
 
             tz = pytz.timezone('America/Sao_Paulo')
-            start_time = timezone.make_aware(start_time, timezone=tz)
-            end_time = timezone.make_aware(end_time, timezone=tz)
+            start_time = tz.localize(start_time)
+            end_time = tz.localize(end_time)
 
             # Atualiza os campos do compromisso
             commitment.time_start = start_time
@@ -91,7 +91,7 @@ def edit_commitment(request, comp_id):
                 'commitment': commitment,
                 'error': 'Formato de data ou hora inválido. Tente novamente.',
                 'form_action': reverse('editar_compromisso', args=[comp_id]),
-                # Preenche os campos com os dados submetidos para não perder as informações
+                # Preenche os campos com os dados submetidos
                 'hora_inicio': request.POST.get('hora_inicio'),
                 'hora_fim': request.POST.get('hora_fim'),
                 'processo': request.POST.get('processo'),
@@ -100,11 +100,11 @@ def edit_commitment(request, comp_id):
             })
     else:
         # Preenche o formulário com os dados existentes
-        selected_date = commitment.time_start.strftime('%d/%m/%Y')
+        selected_date = commitment.time_start.astimezone(pytz.timezone('America/Sao_Paulo')).strftime('%d/%m/%Y')
         context = {
             'selected_date': selected_date,
-            'hora_inicio': commitment.time_start.strftime('%H:%M'),
-            'hora_fim': commitment.time_end.strftime('%H:%M'),
+            'hora_inicio': commitment.time_start.astimezone(pytz.timezone('America/Sao_Paulo')).strftime('%H:%M'),
+            'hora_fim': commitment.time_end.astimezone(pytz.timezone('America/Sao_Paulo')).strftime('%H:%M'),
             'processo': commitment.processes,
             'local': commitment.location,
             'observacoes': commitment.description,
@@ -131,8 +131,8 @@ def get_commitments_by_date(request):
             'processo': comp.processes,
             'local': comp.location,
             'observacoes': comp.description,
-            'hora_inicio': timezone.localtime(comp.time_start).strftime('%H:%M'),
-            'hora_fim': timezone.localtime(comp.time_end).strftime('%H:%M'),
+            'hora_inicio': comp.time_start.astimezone(pytz.timezone('America/Sao_Paulo')).strftime('%H:%M'),
+            'hora_fim': comp.time_end.astimezone(pytz.timezone('America/Sao_Paulo')).strftime('%H:%M'),
             'id': comp.id  # Adiciona o ID do compromisso
         } for comp in compromissos
     ]
