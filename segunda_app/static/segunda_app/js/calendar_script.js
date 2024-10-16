@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     const commitmentsDiv = document.querySelector("#commitments");
+    let selectedDateISO = null; // Variável global para armazenar a data selecionada
 
     // Função para carregar compromissos de um dia específico
     function loadCommitments(dateStr) {
@@ -77,6 +78,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 // Verifica se ainda há compromissos no dia
                 if (commitmentsDiv.children.length === 0) {
                     commitmentsDiv.innerHTML = '<p>Nenhum evento para esse dia.</p>';
+
+                    // Remove a data da lista de datas com compromissos
+                    const selectedDate = selectedDateISO; // A data selecionada no formato 'YYYY-MM-DD'
+                    const index = datasComCompromissos.indexOf(selectedDate);
+                    if (index > -1) {
+                        datasComCompromissos.splice(index, 1);
+                    }
+
+                    // Remove a bolinha verde do calendário
+                    removeEventMarker(selectedDate);
                 }
             } else {
                 return response.json().then(err => {
@@ -90,8 +101,24 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Função para remover o marcador de evento (bolinha verde) do calendário
+    function removeEventMarker(dateStr) {
+        // Encontra o elemento do dia correspondente
+        const dayElements = document.querySelectorAll('.flatpickr-day');
+        dayElements.forEach(dayElem => {
+            const dayDateStr = dayElem.dateObj.toISOString().split('T')[0];
+            if (dayDateStr === dateStr) {
+                // Remove o marcador de evento se existir
+                const eventMarker = dayElem.querySelector('.event-marker');
+                if (eventMarker) {
+                    eventMarker.remove();
+                }
+            }
+        });
+    }
+
     // Configura o calendário flatpickr
-    flatpickr("#datepicker", {
+    const calendar = flatpickr("#datepicker", {
         locale: "pt",              // Idioma para português
         dateFormat: "d/m/Y",       // Formato da data
         inline: true,              // Exibe o calendário inline (não em modal)
@@ -108,6 +135,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Adiciona o listener de clique no próprio dia
             dayElem.addEventListener("click", function() {
+                selectedDateISO = dateStr; // Atualiza a data selecionada
                 loadCommitments(dateStr);  // Carrega compromissos quando o dia é clicado
             });
         }

@@ -28,8 +28,8 @@ def add_commitment(request):
             end_time = datetime.combine(date_obj, datetime.strptime(request.POST['hora_fim'], '%H:%M').time())
             
             tz = pytz.timezone('America/Sao_Paulo')
-            start_time = timezone.make_aware(start_time, timezone=tz)
-            end_time = timezone.make_aware(end_time, timezone=tz)
+            start_time = tz.localize(start_time)
+            end_time = tz.localize(end_time)
 
             Commitment.objects.create(
                 time_start=start_time,
