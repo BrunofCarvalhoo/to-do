@@ -6,32 +6,6 @@
 {% block extra_css %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="{% static 'segunda_app/css/calendar_page_styles.css' %}">
-    <style>
-        .commitment-info {
-            max-height: 400px;    /* Altura máxima ajustável */
-            overflow-y: auto;     /* Habilitar rolagem vertical */
-            border: 1px solid #ccc;
-            padding: 10px;
-            background-color: #f9f9f9;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .commitment-item {
-            display: block;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-            word-wrap: break-word; /* Quebra de linha para textos longos */
-            background-color: #fff;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .commitment-item:last-child {
-            margin-bottom: 0;
-        }
-    </style>
 {% endblock %}
 
 {% block sections %}

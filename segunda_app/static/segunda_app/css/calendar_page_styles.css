@@ -93,6 +93,7 @@ input[type="submit"]:hover {
     align-items: center;
     justify-content: center;
 }
+
 /* Estilo da bolinha verde no calendário */
 .event-marker {
     width: 8px;
@@ -108,40 +109,49 @@ input[type="submit"]:hover {
     position: relative; /* Necessário para a posição da bolinha */
 }
 
+/* Estilo para a seção de compromissos */
 .commitment-info {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 482px;
+    max-height: 400px;    /* Altura máxima ajustável */
+    overflow-y: auto;     /* Habilitar rolagem vertical */
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+    display: block;       /* Evita conflitos com flexbox */
     width: 390px;
     margin-top: 28px;
-    background-color: lightgray;
+    box-sizing: border-box;
 }
 
-/* Estilo para o botão de excluir compromisso */
-.delete-button {
-    display: block;
-    margin: auto;
-    padding: 5px 10px; /* Ajuste o padding para um tamanho menor */
-    background-color: #333; /* Cor cinza para o botão */
-    color: white; /* Cor do texto branco */
-    border: none; /* Remove a borda padrão */
-    border-radius: 4px; /* Arredondamento das bordas */
-    cursor: pointer; /* Cursor de pointer ao passar o mouse */
-    font-size: 14px; /* Tamanho da fonte menor */
+/* Estilo para cada compromisso */
+.commitment-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    word-wrap: break-word; /* Quebra de linha para textos longos */
+    background-color: #fff;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.delete-button:hover {
-    background-color: #000000; /* Cor um pouco mais escura no hover */
+.commitment-item:last-child {
+    margin-bottom: 0;
 }
+
+/* Estilo para os botões */
+.delete-button,
 .edit-button {
     display: block;
-    margin: auto;
-    padding: 5px 10px; /* Ajuste o padding para um tamanho menor */
-    background-color: #333; /* Cor cinza para o botão */
-    color: white; /* Cor do texto branco */
-    border: none; /* Remove a borda padrão */
-    border-radius: 4px; /* Arredondamento das bordas */
-    cursor: pointer; /* Cursor de pointer ao passar o mouse */
-    font-size: 14px; /* Tamanho da fonte menor */
+    margin: 5px auto 0 auto;
+    padding: 5px 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.delete-button:hover,
+.edit-button:hover {
+    background-color: #000000;
 }

@@ -30,19 +30,29 @@ document.addEventListener("DOMContentLoaded", function() {
                 <span>Início: ${comp.hora_inicio}</span><br>
                 <span>Fim: ${comp.hora_fim}</span><br>
                 <p>${comp.observacoes}</p>
+                <button class="edit-button" data-id="${comp.id}">Editar</button>
                 <button class="delete-button" data-id="${comp.id}">Excluir</button>
             `;
             commitmentsDiv.appendChild(commitmentItem);
         });
 
-        // Ajuste para rolagem infinita no container
-        commitmentsDiv.style.overflowY = 'auto';  // Garante a rolagem vertical
+        // Garante a rolagem vertical
+        commitmentsDiv.style.overflowY = 'auto';
 
         // Adiciona evento de clique para cada botão de excluir
         document.querySelectorAll('.delete-button').forEach(button => {
             button.addEventListener('click', function() {
                 const compId = this.getAttribute('data-id'); // Obtém o ID do compromisso
                 deleteCommitment(compId); // Chama a função para deletar o compromisso
+            });
+        });
+
+        // Adiciona evento de clique para cada botão de editar
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const compId = this.getAttribute('data-id'); // Obtém o ID do compromisso
+                // Redireciona para a página de edição
+                window.location.href = `/agenda/editar_compromisso/${compId}/`;
             });
         });
     }
@@ -79,43 +89,6 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Erro ao fazer a requisição para excluir o compromisso:', error);
         });
     }
-    function renderCommitments(compromissos) {
-        compromissos.forEach(comp => {
-            const commitmentItem = document.createElement("div");
-            commitmentItem.className = 'commitment-item';  // Classe para estilizar
-            commitmentItem.innerHTML = `
-                <strong>${comp.processo}</strong><br>
-                <span>Local: ${comp.local}</span><br>
-                <span>Início: ${comp.hora_inicio}</span><br>
-                <span>Fim: ${comp.hora_fim}</span><br>
-                <p>${comp.observacoes}</p>
-                <button class="edit-button" data-id="${comp.id}">Editar</button>
-                <button class="delete-button" data-id="${comp.id}">Excluir</button>
-            `;
-            commitmentsDiv.appendChild(commitmentItem);
-        });
-    
-        // Ajuste para rolagem infinita no container
-        commitmentsDiv.style.overflowY = 'auto';  // Garante a rolagem vertical
-    
-        // Adiciona evento de clique para cada botão de excluir
-        document.querySelectorAll('.delete-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const compId = this.getAttribute('data-id'); // Obtém o ID do compromisso
-                deleteCommitment(compId); // Chama a função para deletar o compromisso
-            });
-        });
-    
-        // **Adiciona evento de clique para cada botão de editar**
-        document.querySelectorAll('.edit-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const compId = this.getAttribute('data-id'); // Obtém o ID do compromisso
-                // Redireciona para a página de edição
-                window.location.href = `/agenda/editar_compromisso/${compId}/`;
-            });
-        });
-    }
-    
 
     // Configura o calendário flatpickr
     flatpickr("#datepicker", {
